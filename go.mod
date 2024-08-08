@@ -9,6 +9,8 @@ require (
 
 require github.com/sashabaranov/go-openai v1.26.2
 
+require github.com/andybalholm/cascadia v1.3.2 // indirect
+
 require (
 	github.com/go-ping/ping v1.1.0
 	github.com/google/uuid v1.6.0 // indirect
@@ -18,6 +20,7 @@ require (
 )
 
 require (
+	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/ricochet2200/go-disk-usage/du v0.0.0-20210707232629-ac9918953285
 	github.com/spf13/pflag v1.0.5 // indirect
