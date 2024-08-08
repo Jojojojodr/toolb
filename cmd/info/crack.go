@@ -1,9 +1,14 @@
 package info
 
 import (
+	"crypto/md5"
+	"crypto/sha1"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"io/ioutil"
 	"log"
-	"os/exec"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -23,12 +28,47 @@ var crackCmd = &cobra.Command{
 		info crack -q "sha256 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("Cracking hash: %s\n\n", query)
-		out, err := exec.Command("python", "scripts/bruteforce.py", query).CombinedOutput()
-		if err != nil {
-			log.Fatal("Command did not run successfully\n", err)
+		queryArgs := strings.Split(query, " ")
+		if len(queryArgs) != 2 {
+			log.Fatal("Invalid query. Please provide a hash type and a hash value.")
 			return
 		}
-		fmt.Printf("Output: \n%s\n", out)
+
+		hashMethod := queryArgs[0]
+		hash := queryArgs[1]
+
+		passwords, err := ioutil.ReadFile("passwords.txt")
+		if err != nil {
+			log.Fatal("Could not read passwords file.")
+			return
+		}
+
+		passwordList := strings.Split(string(passwords), "\n")
+
+		for _, password := range passwordList {
+			var hashedPassword string
+			switch hashMethod {
+			case "md5":
+				hash := md5.Sum([]byte(password))
+				hashedPassword = hex.EncodeToString(hash[:])
+			case "sha1":
+				hash := sha1.Sum([]byte(password))
+				hashedPassword = hex.EncodeToString(hash[:])
+			case "sha256":
+				hash := sha256.Sum256([]byte(password))
+				hashedPassword = hex.EncodeToString(hash[:])
+			default:
+				log.Fatal("Invalid hash method.")
+				return
+			}
+
+			if hashedPassword == hash {
+				fmt.Printf("Password found: %s\n", password)
+				return
+			}
+		}
+
+		fmt.Println("Password not found.")
 	},
 }
 
