@@ -9,13 +9,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	showVersion bool
+	version = "dev"
+)
+
 var rootCmd = &cobra.Command{
-	Use:   "toolbox",
-	Short: "Toolbox is a collection of tools.",
-	Long: `Toolbox is a collection of tools. It is a collection of tools that can be used to troubleshoot issues.`,
+	Use:   "toolb",
+	Short: "Toolb is a collection of tools.",
+	Long: `Toolb is a collection of tools. It is a collection of tools that can be used to troubleshoot issues.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Welcome to the toolbox!")
-		cmd.Help()
+		if showVersion {
+			fmt.Println("Version:", version)
+		} else {
+			fmt.Printf("Welcome to the toolb!\n\n")
+			cmd.Help()
+		}
 	},
 }
 
@@ -34,6 +43,7 @@ func addSubCommandsPallettes() {
 
 func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().BoolVarP(&showVersion, "version", "v", false, "Print the version of the toolb.")
 
 	addSubCommandsPallettes()
 }
