@@ -4,21 +4,36 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
-	"os"
+	"strings"
 	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
+const (
+	API_KEY string = "cc0582fc84e09298349ff4b21dc76c5e"
+)
+
 var (
-	API_KEY string
-	lat string = "52.377956"
-	lon string = "4.897070"
+	lat string
+	lon string
 	hour bool
 	day bool
 )
+
+type IPInfo struct {
+    IP       string  `json:"ip"`
+    City     string  `json:"city"`
+    Region   string  `json:"region"`
+    Country  string  `json:"country"`
+    Loc      string  `json:"loc"`
+    Org      string  `json:"org"`
+    Postal   string  `json:"postal"`
+    Timezone string  `json:"timezone"`
+    Readme   string  `json:"readme"`
+}
 
 type Weather struct {
 	Timezone string `json:"timezone"`
@@ -51,6 +66,35 @@ type Weather struct {
 			Description string `json:"description"`
 		} `json:"weather"`
 	} `json:"daily"`
+}
+
+func getLocation() (lat, lon string, err error) {
+    resp, err := http.Get("https://ipinfo.io/json")
+    if err != nil {
+        return "", "", fmt.Errorf("failed to get location: %v", err)
+    }
+    defer resp.Body.Close()
+
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        return "", "", fmt.Errorf("failed to read response body: %v", err)
+    }
+
+    var ipInfo IPInfo
+    err = json.Unmarshal(body, &ipInfo)
+    if err != nil {
+        return "", "", fmt.Errorf("failed to unmarshal JSON: %v", err)
+    }
+
+    loc := ipInfo.Loc
+    coords := strings.Split(loc, ",")
+    if len(coords) != 2 {
+        return "", "", fmt.Errorf("invalid location format: %v", loc)
+    }
+
+    lat = coords[0]
+    lon = coords[1]
+    return lat, lon, nil
 }
 
 var weatherCmd = &cobra.Command{
@@ -114,12 +158,14 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	env := godotenv.Load()
-	if env != nil {
-		fmt.Println("Error loading .env file")
-	}
-	
-	API_KEY = os.Getenv("WEATHER_API_KEY")
+	latitude, longitude, err := getLocation()
+    if err != nil {
+        fmt.Println("Error:", err)
+        return
+    }
+
+	lat = latitude
+	lon = longitude
 
 	weatherCmd.Flags().BoolVarP(&hour, "hourly", "o", false, "Show hourly weather")
 	weatherCmd.Flags().BoolVarP(&day, "daily", "d", false, "Show daily weather")
