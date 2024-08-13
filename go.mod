@@ -7,8 +7,6 @@ require (
 	github.com/spf13/cobra v1.8.1
 )
 
-require github.com/sashabaranov/go-openai v1.26.2
-
 require github.com/andybalholm/cascadia v1.3.2 // indirect
 
 require (
