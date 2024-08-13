@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+
 	"github.com/Jojojojodr/toolb/cmd/info"
 	"github.com/Jojojojodr/toolb/cmd/net"
 
@@ -11,7 +12,6 @@ import (
 
 var (
 	showVersion bool
-	version = "dev"
 )
 
 var rootCmd = &cobra.Command{
@@ -20,7 +20,7 @@ var rootCmd = &cobra.Command{
 	Long: `Toolb is a collection of tools. It is a collection of tools that can be used to troubleshoot issues.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if showVersion {
-			fmt.Println("Version:", version)
+			fmt.Println("Version:", Version)
 		} else {
 			fmt.Printf("Welcome to the toolb!\n\n")
 			cmd.Help()
